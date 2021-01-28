@@ -1,14 +1,14 @@
-package svgparser_test
+package svg
 
 import (
 	"fmt"
 	"strings"
+	"testing"
 
-	"github.com/JoshVarga/svgparser"
-	"github.com/JoshVarga/svgparser/utils"
+	"github.com/galihrivanto/svg/utils"
 )
 
-func ExampleParse() {
+func TestExampleParse(t *testing.T) {
 	svg := `
 		<svg width="100" height="100">
 			<circle cx="50" cy="50" r="40" fill="red" />
@@ -16,7 +16,7 @@ func ExampleParse() {
 	`
 	reader := strings.NewReader(svg)
 
-	element, _ := svgparser.Parse(reader, false)
+	element, _ := Parse(reader, false)
 
 	fmt.Printf("SVG width: %s\n", element.Attributes["width"])
 	fmt.Printf("Circle fill: %s", element.Children[0].Attributes["fill"])
@@ -26,7 +26,7 @@ func ExampleParse() {
 	// Circle fill: red
 }
 
-func ExampleValidate() {
+func TestExampleValidate(t *testing.T) {
 	svg := `
 		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg-root" width="100%" height="100%">
 			<desc id="test-desc">Test validation</desc>
@@ -34,7 +34,7 @@ func ExampleValidate() {
 	`
 	reader := strings.NewReader(svg)
 
-	element, _ := svgparser.Parse(reader, true)
+	element, _ := Parse(reader, true)
 
 	fmt.Printf("Desc content: %+v\n", element.FindAll("desc")[0].Content)
 
@@ -42,7 +42,7 @@ func ExampleValidate() {
 	// Desc content: Test validation
 }
 
-func ExampleElement_FindAll() {
+func TestExampleElement_FindAll(t *testing.T) {
 	svg := `
 		<svg width="1000" height="600">
 			<rect fill="#000" width="5" height="3"/>
@@ -51,7 +51,7 @@ func ExampleElement_FindAll() {
 		</svg>
 	`
 	reader := strings.NewReader(svg)
-	element, _ := svgparser.Parse(reader, false)
+	element, _ := Parse(reader, false)
 
 	rectangles := element.FindAll("rect")
 
@@ -63,7 +63,7 @@ func ExampleElement_FindAll() {
 	// Second child height: 2
 }
 
-func ExampleElement_FindID() {
+func TestExampleElement_FindID(t *testing.T) {
 	svg := `
 		<svg width="1000" height="600">
 			<rect id="black" fill="#000" width="5" height="3"/>
@@ -72,7 +72,7 @@ func ExampleElement_FindID() {
 		</svg>
 	`
 	reader := strings.NewReader(svg)
-	element, _ := svgparser.Parse(reader, false)
+	element, _ := Parse(reader, false)
 
 	white := element.FindID("white")
 
@@ -82,7 +82,7 @@ func ExampleElement_FindID() {
 	// White rect fill: #fff
 }
 
-func ExamplePathParser() {
+func TestExamplePathParser(t *testing.T) {
 	d := "M50,50 A30,30 0 0,1 35,20 L100,100 M110,110 L100,0"
 	path, _ := utils.PathParser(d)
 

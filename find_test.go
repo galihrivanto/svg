@@ -1,12 +1,10 @@
-package svgparser_test
+package svg
 
 import (
 	"testing"
-
-	"github.com/JoshVarga/svgparser"
 )
 
-func testElement() *svgparser.Element {
+func testElement() *Element {
 	svg := `
 		<svg width="1000" height="600">
 			<g id="first">
@@ -23,13 +21,13 @@ func testElement() *svgparser.Element {
 	return element
 }
 
-func equals(t *testing.T, name string, expected, actual *svgparser.Element) {
+func equals(t *testing.T, name string, expected, actual *Element) {
 	if !(expected == actual || expected.Compare(actual)) {
 		t.Errorf("%s: expected %v, actual %v\n", name, expected, actual)
 	}
 }
 
-func equalSlices(t *testing.T, name string, expected, actual []*svgparser.Element) {
+func equalSlices(t *testing.T, name string, expected, actual []*Element) {
 	if len(expected) != len(actual) {
 		t.Errorf("%s: expected %v, actual %v\n", name, expected, actual)
 		return
@@ -43,22 +41,22 @@ func equalSlices(t *testing.T, name string, expected, actual []*svgparser.Elemen
 func TestFindAll(t *testing.T) {
 	svgElement := testElement()
 
-	equalSlices(t, "Find", []*svgparser.Element{
+	equalSlices(t, "Find", []*Element{
 		element("rect", map[string]string{"width": "5", "height": "3", "id": "inFirst"}),
 		element("rect", map[string]string{"width": "5", "height": "2", "id": "inFirst"}),
 		element("rect", map[string]string{"width": "5", "height": "1"}),
 	}, svgElement.FindAll("rect"))
 
-	equalSlices(t, "Find", []*svgparser.Element{}, svgElement.FindAll("circle"))
+	equalSlices(t, "Find", []*Element{}, svgElement.FindAll("circle"))
 }
 
 func TestFindID(t *testing.T) {
 	svgElement := testElement()
 
-	equals(t, "Find", &svgparser.Element{
+	equals(t, "Find", &Element{
 		Name:       "g",
 		Attributes: map[string]string{"id": "second"},
-		Children: []*svgparser.Element{
+		Children: []*Element{
 			element("path", map[string]string{"d": "M50 50 Q50 100 100 100"}),
 			element("rect", map[string]string{"width": "5", "height": "1"}),
 		},

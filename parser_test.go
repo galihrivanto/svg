@@ -1,15 +1,13 @@
-package svgparser_test
+package svg
 
 import (
 	"testing"
-
-	"github.com/JoshVarga/svgparser"
 )
 
 func TestParser(t *testing.T) {
 	var testCases = []struct {
 		svg     string
-		element svgparser.Element
+		element Element
 	}{
 		{
 			`
@@ -17,13 +15,13 @@ func TestParser(t *testing.T) {
 			<circle cx="50" cy="50" r="40" fill="red" />
 		</svg>
 		`,
-			svgparser.Element{
+			Element{
 				Name: "svg",
 				Attributes: map[string]string{
 					"width":  "100",
 					"height": "100",
 				},
-				Children: []*svgparser.Element{
+				Children: []*Element{
 					element("circle", map[string]string{"cx": "50", "cy": "50", "r": "40", "fill": "red"}),
 				},
 			},
@@ -38,21 +36,21 @@ func TestParser(t *testing.T) {
 			</g>
 		</svg>
 		`,
-			svgparser.Element{
+			Element{
 				Name: "svg",
 				Attributes: map[string]string{
 					"width":  "450",
 					"height": "400",
 				},
-				Children: []*svgparser.Element{
-					&svgparser.Element{
+				Children: []*Element{
+					{
 						Name: "g",
 						Attributes: map[string]string{
 							"stroke":       "black",
 							"stroke-width": "3",
 							"fill":         "black",
 						},
-						Children: []*svgparser.Element{
+						Children: []*Element{
 							element("path", map[string]string{"id": "AB", "d": "M 100 350 L 150 -300", "stroke": "red"}),
 							element("path", map[string]string{"id": "BC", "d": "M 250 50 L 150 300", "stroke": "red"}),
 							element("path", map[string]string{"d": "M 175 200 L 150 0", "stroke": "green"}),
@@ -63,7 +61,7 @@ func TestParser(t *testing.T) {
 		},
 		{
 			"",
-			svgparser.Element{},
+			Element{},
 		},
 	}
 

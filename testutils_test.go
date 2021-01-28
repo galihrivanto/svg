@@ -1,20 +1,18 @@
-package svgparser_test
+package svg
 
 import (
 	"strings"
-
-	"github.com/JoshVarga/svgparser"
 )
 
-func element(name string, attrs map[string]string) *svgparser.Element {
-	return &svgparser.Element{
+func element(name string, attrs map[string]string) *Element {
+	return &Element{
 		Name:       name,
 		Attributes: attrs,
-		Children:   []*svgparser.Element{},
+		Children:   []*Element{},
 	}
 }
 
-func parse(svg string, validate bool) (*svgparser.Element, error) {
-	element, err := svgparser.Parse(strings.NewReader(svg), validate)
+func parse(svg string, validate bool) (*Element, error) {
+	element, err := Parse(strings.NewReader(svg), validate)
 	return element, err
 }

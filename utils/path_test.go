@@ -1,25 +1,23 @@
-package utils_test
+package utils
 
 import (
 	"testing"
-
-	"."
 )
 
 func TestPathParser(t *testing.T) {
 	var testCases = []struct {
 		d        string
-		expected *utils.Path
+		expected *Path
 	}{
 		{
 			"M 10,20 L 30,30 Z",
-			&utils.Path{
-				[]*utils.Subpath{
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "M", Params: []float64{10, 20}},
-							&utils.Command{Symbol: "L", Params: []float64{30, 30}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+			&Path{
+				Subpaths: []*Subpath{
+					{
+						Commands: []*Command{
+							{Symbol: "M", Params: []float64{10, 20}},
+							{Symbol: "L", Params: []float64{30, 30}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
 				},
@@ -27,13 +25,13 @@ func TestPathParser(t *testing.T) {
 		},
 		{
 			"M .2.3 L 30,30 Z",
-			&utils.Path{
-				[]*utils.Subpath{
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "M", Params: []float64{0.2, 0.3}},
-							&utils.Command{Symbol: "L", Params: []float64{30, 30}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+			&Path{
+				Subpaths: []*Subpath{
+					{
+						Commands: []*Command{
+							{Symbol: "M", Params: []float64{0.2, 0.3}},
+							{Symbol: "L", Params: []float64{30, 30}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
 				},
@@ -41,13 +39,13 @@ func TestPathParser(t *testing.T) {
 		},
 		{
 			"M10-20 L30,30 Z",
-			&utils.Path{
-				[]*utils.Subpath{
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "M", Params: []float64{10, -20}},
-							&utils.Command{Symbol: "L", Params: []float64{30, 30}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+			&Path{
+				Subpaths: []*Subpath{
+					{
+						Commands: []*Command{
+							{Symbol: "M", Params: []float64{10, -20}},
+							{Symbol: "L", Params: []float64{30, 30}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
 				},
@@ -55,14 +53,14 @@ func TestPathParser(t *testing.T) {
 		},
 		{
 			"M 10-20 L 30,30 L 40,40 Z",
-			&utils.Path{
-				[]*utils.Subpath{
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "M", Params: []float64{10, -20}},
-							&utils.Command{Symbol: "L", Params: []float64{30, 30}},
-							&utils.Command{Symbol: "L", Params: []float64{40, 40}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+			&Path{
+				Subpaths: []*Subpath{
+					{
+						Commands: []*Command{
+							{Symbol: "M", Params: []float64{10, -20}},
+							{Symbol: "L", Params: []float64{30, 30}},
+							{Symbol: "L", Params: []float64{40, 40}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
 				},
@@ -70,13 +68,13 @@ func TestPathParser(t *testing.T) {
 		},
 		{
 			"M10,20 L20,30 L10,20",
-			&utils.Path{
-				[]*utils.Subpath{
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "M", Params: []float64{10, 20}},
-							&utils.Command{Symbol: "L", Params: []float64{20, 30}},
-							&utils.Command{Symbol: "L", Params: []float64{10, 20}},
+			&Path{
+				Subpaths: []*Subpath{
+					{
+						Commands: []*Command{
+							{Symbol: "M", Params: []float64{10, 20}},
+							{Symbol: "L", Params: []float64{20, 30}},
+							{Symbol: "L", Params: []float64{10, 20}},
 						},
 					},
 				},
@@ -84,7 +82,7 @@ func TestPathParser(t *testing.T) {
 		},
 	}
 	for _, test := range testCases {
-		path, err := utils.PathParser(test.d)
+		path, err := PathParser(test.d)
 		if !(test.expected.Compare(path) && err == nil) {
 			t.Errorf("Path: expected %v, actual %v\n", test.expected, path)
 		}
@@ -92,7 +90,7 @@ func TestPathParser(t *testing.T) {
 }
 
 func TestParamNumberInPath(t *testing.T) {
-	path, err := utils.PathParser("M 10 20 30 Z")
+	path, err := PathParser("M 10 20 30 Z")
 	expectedError := "Incorrect number of parameters for M"
 
 	if !(path == nil && err.Error() == expectedError) {
@@ -103,17 +101,17 @@ func TestParamNumberInPath(t *testing.T) {
 func TestMissingZero(t *testing.T) {
 	var testCases = []struct {
 		d        string
-		expected *utils.Path
+		expected *Path
 	}{
 		{
 			"M 0.2 0.3 L 30,30 Z",
-			&utils.Path{
-				[]*utils.Subpath{
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "M", Params: []float64{0.2, 0.3}},
-							&utils.Command{Symbol: "L", Params: []float64{30, 30}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+			&Path{
+				Subpaths: []*Subpath{
+					{
+						Commands: []*Command{
+							{Symbol: "M", Params: []float64{0.2, 0.3}},
+							{Symbol: "L", Params: []float64{30, 30}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
 				},
@@ -122,7 +120,7 @@ func TestMissingZero(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		path, err := utils.PathParser(test.d)
+		path, err := PathParser(test.d)
 		if !(test.expected.Compare(path) && err == nil) {
 			t.Errorf("Path: expected %v, actual %v\n", test.expected, path)
 		}
@@ -132,26 +130,26 @@ func TestMissingZero(t *testing.T) {
 func TestTwoSubpaths(t *testing.T) {
 	var testCases = []struct {
 		d        string
-		expected *utils.Path
+		expected *Path
 	}{
 		{
 			"M25,0 L0,30 L50,50 Z m 10, 10 L50,50 l10,0 Z",
-			&utils.Path{
-				[]*utils.Subpath{
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "M", Params: []float64{25, 0}},
-							&utils.Command{Symbol: "L", Params: []float64{0, 30}},
-							&utils.Command{Symbol: "L", Params: []float64{50, 50}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+			&Path{
+				Subpaths: []*Subpath{
+					{
+						Commands: []*Command{
+							{Symbol: "M", Params: []float64{25, 0}},
+							{Symbol: "L", Params: []float64{0, 30}},
+							{Symbol: "L", Params: []float64{50, 50}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "m", Params: []float64{10, 10}},
-							&utils.Command{Symbol: "L", Params: []float64{50, 50}},
-							&utils.Command{Symbol: "l", Params: []float64{10, 0}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+					{
+						Commands: []*Command{
+							{Symbol: "m", Params: []float64{10, 10}},
+							{Symbol: "L", Params: []float64{50, 50}},
+							{Symbol: "l", Params: []float64{10, 0}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
 				},
@@ -160,7 +158,7 @@ func TestTwoSubpaths(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		path, err := utils.PathParser(test.d)
+		path, err := PathParser(test.d)
 		if len(test.expected.Subpaths) != len(path.Subpaths) {
 			t.Errorf("Incorrect number of subpaths found")
 		}
@@ -174,24 +172,24 @@ func TestTwoSubpaths(t *testing.T) {
 func TestImplicitLineCommands(t *testing.T) {
 	var testCases = []struct {
 		d        string
-		expected *utils.Path
+		expected *Path
 	}{
 		{
 			"M 10,20 30,40 Z m 10,20 30,40 Z",
-			&utils.Path{
-				[]*utils.Subpath{
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "M", Params: []float64{10, 20}},
-							&utils.Command{Symbol: "L", Params: []float64{30, 40}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+			&Path{
+				Subpaths: []*Subpath{
+					{
+						Commands: []*Command{
+							{Symbol: "M", Params: []float64{10, 20}},
+							{Symbol: "L", Params: []float64{30, 40}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
-					&utils.Subpath{
-						Commands: []*utils.Command{
-							&utils.Command{Symbol: "m", Params: []float64{10, 20}},
-							&utils.Command{Symbol: "l", Params: []float64{30, 40}},
-							&utils.Command{Symbol: "Z", Params: []float64{}},
+					{
+						Commands: []*Command{
+							{Symbol: "m", Params: []float64{10, 20}},
+							{Symbol: "l", Params: []float64{30, 40}},
+							{Symbol: "Z", Params: []float64{}},
 						},
 					},
 				},
@@ -200,7 +198,7 @@ func TestImplicitLineCommands(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		path, err := utils.PathParser(test.d)
+		path, err := PathParser(test.d)
 		if !(test.expected.Compare(path) && err == nil) {
 			t.Errorf("Path: expected %v, actual %v\n", test.expected, path)
 		}

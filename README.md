@@ -1,10 +1,12 @@
-# svgparser
+# SVG Parser 
+
+Forked from [svgparser](https://github.com/JoshVarga/svgparser)
 
 Library for parsing and manipulating SVG files.
 
 ### Installation
 
-	go get github.com/JoshVarga/svgparser
+	go get github.com/galihrivanto/svg
 
 ### Features
 
@@ -30,7 +32,7 @@ Parsing the value of a style element.
 		`
 		reader := strings.NewReader(svg)
 
-		element, _ := svgparser.Parse(reader, false)
+		element, _ := svg.Parse(reader, false)
 
 		fmt.Printf("SVG width: %s", element.Attributes["width"])
 		fmt.Printf("Circle fill: %s", element.Children[0].Attributes["fill"])

@@ -1,4 +1,4 @@
-package svgparser
+package svg
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"strings"
+
 	"golang.org/x/net/html/charset"
 )
 

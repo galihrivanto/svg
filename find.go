@@ -1,4 +1,4 @@
-package svgparser
+package svg
 
 // FindID finds the first child with the specified ID.
 func (e *Element) FindID(id string) *Element {
