@@ -21,7 +21,15 @@ func SetContent(root *Element, id string, text string) error {
 	if el == nil {
 		return ErrElementNotFound
 	}
-	el.Content = text
+
+	// try to get tspan element
+	tspans := el.FindAll("tspan")
+	if len(tspans) > 0 {
+		// modify tspan element instead
+		tspans[0].Content = text
+	} else {
+		el.Content = text
+	}
 
 	return nil
 }
