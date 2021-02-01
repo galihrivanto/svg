@@ -48,7 +48,7 @@ func Set64Image(root *Element, id string, content string) error {
 		content = fmt.Sprintf("data:%s;base64,%s", mime, content)
 	}
 
-	el.Attributes["href"] = content
+	el.Attributes["xlink:href"] = content
 
 	return nil
 }
