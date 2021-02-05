@@ -32,7 +32,7 @@ func (e *Element) Serialize() xml.StartElement {
 			value := e.Attributes[key]
 			attr := xml.Attr{
 				Name:  xml.Name{Local: key},
-				Value: value,
+				Value: string(xml.CharData(value)),
 			}
 			attributes = append(attributes, attr)
 		}
@@ -41,7 +41,7 @@ func (e *Element) Serialize() xml.StartElement {
 		for name, value := range e.Attributes {
 			attr := xml.Attr{
 				Name:  xml.Name{Local: name},
-				Value: value,
+				Value: string(xml.CharData(value)),
 			}
 			attributes = append(attributes, attr)
 		}
@@ -72,12 +72,17 @@ func (e *Element) Encode(encoder *xml.Encoder) error {
 			return err
 		}
 	}
+
 	return encoder.EncodeToken(end)
 }
 
 // Render renders element to SVG
-func Render(e *Element, w io.Writer) error {
+func Render(e *Element, w io.Writer, vars ...bool) error {
 	encoder := xml.NewEncoder(w)
+
+	if len(vars) == 0 || vars[0] == true {
+		encoder.Indent("  ", "  ")
+	}
 
 	if err := e.Encode(encoder); err != nil {
 		return fmt.Errorf("Could not render element: %s", err)

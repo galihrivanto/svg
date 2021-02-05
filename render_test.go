@@ -8,7 +8,7 @@ import (
 
 func render(e *Element) (string, error) {
 	w := &bytes.Buffer{}
-	if err := Render(e, w); err != nil {
+	if err := Render(e, w, false); err != nil {
 		return "", err
 	}
 

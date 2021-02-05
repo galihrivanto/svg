@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"io"
 	"io/ioutil"
+	"log"
 	"strings"
 
 	"golang.org/x/net/html/charset"
@@ -27,12 +28,44 @@ type Element struct {
 	Content    string
 }
 
+// only for root element (svg)
+func (e *Element) namespaceLookup(space string) string {
+	if e.Attributes == nil {
+		return ""
+	}
+
+	for tag, v := range e.Attributes {
+		if v == space {
+			parts := strings.Split(tag, ":")
+			return parts[len(parts)-1]
+		}
+	}
+
+	return ""
+}
+
+func canonizeAttrName(root *Element, attr xml.Attr) string {
+	if attr.Name.Space == "" || root == nil {
+		return attr.Name.Local
+	}
+
+	// lookup namespace in roor
+	tag := root.namespaceLookup(attr.Name.Space)
+	if tag != "" {
+		return tag + ":" + attr.Name.Local
+	}
+
+	return attr.Name.Local
+}
+
 // NewElement creates element from decoder token.
-func NewElement(token xml.StartElement) *Element {
+func NewElement(root *Element, token xml.StartElement) *Element {
 	element := &Element{}
 	attributes := make(map[string]string)
 	for _, attr := range token.Attr {
-		attributes[attr.Name.Local] = attr.Value
+		log.Println("canonized", canonizeAttrName(root, attr))
+
+		attributes[canonizeAttrName(root, attr)] = attr.Value
 	}
 	element.Name = token.Name.Local
 	element.Attributes = attributes
@@ -75,14 +108,14 @@ func DecodeFirst(decoder *xml.Decoder) (*Element, error) {
 
 		switch element := token.(type) {
 		case xml.StartElement:
-			return NewElement(element), nil
+			return NewElement(nil, element), nil
 		}
 	}
 	return &Element{}, nil
 }
 
 // Decode decodes the child elements of element.
-func (e *Element) Decode(decoder *xml.Decoder) error {
+func (e *Element) Decode(root *Element, decoder *xml.Decoder) error {
 	for {
 		token, err := decoder.Token()
 		if token == nil && err == io.EOF {
@@ -95,8 +128,8 @@ func (e *Element) Decode(decoder *xml.Decoder) error {
 
 		switch element := token.(type) {
 		case xml.StartElement:
-			nextElement := NewElement(element)
-			err := nextElement.Decode(decoder)
+			nextElement := NewElement(root, element)
+			err := nextElement.Decode(root, decoder)
 			if err != nil {
 				return err
 			}
@@ -130,7 +163,7 @@ func Parse(source io.Reader, validate bool) (*Element, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := element.Decode(decoder); err != nil && err != io.EOF {
+	if err := element.Decode(element, decoder); err != nil && err != io.EOF {
 		return nil, err
 	}
 	return element, nil
