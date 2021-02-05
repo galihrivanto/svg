@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"io"
 	"io/ioutil"
-	"log"
 	"strings"
 
 	"golang.org/x/net/html/charset"
@@ -63,8 +62,6 @@ func NewElement(root *Element, token xml.StartElement) *Element {
 	element := &Element{}
 	attributes := make(map[string]string)
 	for _, attr := range token.Attr {
-		log.Println("canonized", canonizeAttrName(root, attr))
-
 		attributes[canonizeAttrName(root, attr)] = attr.Value
 	}
 	element.Name = token.Name.Local
