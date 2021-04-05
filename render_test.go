@@ -2,6 +2,7 @@ package svg
 
 import (
 	"bytes"
+	"os"
 	"strings"
 	"testing"
 )
@@ -71,5 +72,32 @@ func TestRender(t *testing.T) {
 		if !(strings.Compare(test.svg, actual) == 0 && err == nil) {
 			t.Errorf("Render: expected %v, actual %v\n", test.svg, actual)
 		}
+	}
+}
+
+func TestParseAndRenderInkscapeSVG(t *testing.T) {
+	fin, err := os.Open("./inkscape.svg")
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	defer fin.Close()
+
+	root, err := Parse(fin, false)
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+
+	fout, err := os.Create("./inkscape-result.svg")
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	defer fout.Close()
+
+	if err := Render(root, fout, true); err != nil {
+		t.Log(err)
+		t.FailNow()
 	}
 }

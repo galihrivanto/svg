@@ -1,6 +1,8 @@
 package svg
 
 import (
+	"log"
+	"os"
 	"testing"
 )
 
@@ -87,4 +89,21 @@ func TestValidDocument(t *testing.T) {
 	if !(element != nil && err == nil) {
 		t.Errorf("Validation: expected %v, actual %v\n", nil, err)
 	}
+}
+
+func TestParseInkscapeSVG(t *testing.T) {
+	f, err := os.Open("./inkscape.svg")
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+	defer f.Close()
+
+	root, err := Parse(f, false)
+	if err != nil {
+		t.Log(err)
+		t.FailNow()
+	}
+
+	log.Println(root.Attributes)
 }

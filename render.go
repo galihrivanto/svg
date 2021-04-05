@@ -81,7 +81,7 @@ func Render(e *Element, w io.Writer, vars ...bool) error {
 	encoder := xml.NewEncoder(w)
 
 	if len(vars) == 0 || vars[0] == true {
-		encoder.Indent("  ", "  ")
+		encoder.Indent("", "  ")
 	}
 
 	if err := e.Encode(encoder); err != nil {

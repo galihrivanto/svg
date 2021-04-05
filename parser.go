@@ -25,47 +25,63 @@ type Element struct {
 	Attributes map[string]string
 	Children   []*Element
 	Content    string
+
+	// namespace dict extracted form root element attrributes
+	// which prefixed with xmlns:
+	Namespaces map[string]string
 }
 
-// only for root element (svg)
-func (e *Element) namespaceLookup(space string) string {
-	if e.Attributes == nil {
-		return ""
+func canonizedName(name xml.Name, namespaces map[string]string) string {
+	if namespaces == nil {
+		return name.Local
 	}
 
-	for tag, v := range e.Attributes {
-		if v == space {
-			parts := strings.Split(tag, ":")
-			return parts[len(parts)-1]
+	// lookup tag key
+	tag := name.Local
+	if name.Space != "" {
+		prefix := namespaces[name.Space]
+
+		// ignore default svg prefix
+		if prefix != "svg" {
+			tag = prefix + ":" + name.Local
 		}
 	}
 
-	return ""
-}
-
-func canonizeAttrName(root *Element, attr xml.Attr) string {
-	if attr.Name.Space == "" || root == nil {
-		return attr.Name.Local
-	}
-
-	// lookup namespace in roor
-	tag := root.namespaceLookup(attr.Name.Space)
-	if tag != "" {
-		return tag + ":" + attr.Name.Local
-	}
-
-	return attr.Name.Local
+	return tag
 }
 
 // NewElement creates element from decoder token.
 func NewElement(root *Element, token xml.StartElement) *Element {
 	element := &Element{}
 	attributes := make(map[string]string)
-	for _, attr := range token.Attr {
-		attributes[canonizeAttrName(root, attr)] = attr.Value
+	var namespaces map[string]string
+	if root == nil {
+		namespaces = make(map[string]string)
+	} else {
+		namespaces = root.Namespaces
 	}
-	element.Name = token.Name.Local
+
+	for _, attr := range token.Attr {
+		key := attr.Name.Local
+		if attr.Name.Space == "xmlns" {
+			namespaces[attr.Value] = attr.Name.Local
+			key = attr.Name.Space + ":" + attr.Name.Local
+		} else if attr.Name.Space != "" {
+			tag, ok := namespaces[attr.Name.Space]
+			if ok {
+				key = tag + ":" + attr.Name.Local
+			}
+		}
+
+		attributes[key] = attr.Value
+	}
+
+	element.Name = canonizedName(token.Name, namespaces)
 	element.Attributes = attributes
+	if root == nil {
+		element.Namespaces = namespaces
+	}
+
 	return element
 }
 
@@ -140,7 +156,12 @@ func (e *Element) Decode(root *Element, decoder *xml.Decoder) error {
 			}
 
 		case xml.EndElement:
-			if element.Name.Local == e.Name {
+			namespaces := e.Namespaces
+			if root != nil {
+				namespaces = root.Namespaces
+			}
+
+			if canonizedName(element.Name, namespaces) == e.Name {
 				return nil
 			}
 		}
